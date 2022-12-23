@@ -2,6 +2,7 @@ package com.appsdeveloperblog.app.ws.mobileappwsrestassuredtest;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -11,6 +12,10 @@ import java.util.Map;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +41,15 @@ public class TestCreateUser {
    shippingAddress.put("postalCode","123456");
    shippingAddress.put("type","shipping");
 
+   Map<String, Object> billingAddress = new HashMap<>();
+   shippingAddress.put("city", "New York");
+   shippingAddress.put("country", "USA");
+   shippingAddress.put("streetName", "123 Street name");
+   shippingAddress.put("postalCode","123456");
+   shippingAddress.put("type","billing");
+
    userAddresses.add(shippingAddress);
+   userAddresses.add(billingAddress);
 
    Map<String, Object> userDetails = new HashMap<>();
    userDetails.put("firstName", "John");
@@ -60,5 +73,23 @@ public class TestCreateUser {
 
      String userId = response.jsonPath().getString("userId");
      assertNotNull(userId);
+     assertTrue(userId.length() == 30);
+
+      String bodyString = response.body().asString();
+      try {
+        JSONObject responseBodyJson = new JSONObject(bodyString);
+        JSONArray addresses = responseBodyJson.getJSONArray("addresses");
+
+        assertNotNull(addresses);
+        assertTrue(addresses.length() == 2);
+
+        String addressId = addresses.getJSONObject(0).getString("addressId");
+        assertNotNull(addressId);
+        assertTrue(addressId.length() == 30);
+
+
+      } catch (JSONException e) {
+          fail(e.getMessage());
+      }
   }
 }
