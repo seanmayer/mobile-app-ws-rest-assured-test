@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 public class TestCreateUser {
 
   private final String CONTEXT_PATH = "/mobile-app-ws";
+  private final String EMAIL_ADDRESS = "test@test.com";
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -42,11 +43,11 @@ public class TestCreateUser {
    shippingAddress.put("type","shipping");
 
    Map<String, Object> billingAddress = new HashMap<>();
-   shippingAddress.put("city", "New York");
-   shippingAddress.put("country", "USA");
-   shippingAddress.put("streetName", "123 Street name");
-   shippingAddress.put("postalCode","123456");
-   shippingAddress.put("type","billing");
+   billingAddress.put("city", "New York");
+   billingAddress.put("country", "USA");
+   billingAddress.put("streetName", "123 Street name");
+   billingAddress.put("postalCode","123456");
+   billingAddress.put("type","billing");
 
    userAddresses.add(shippingAddress);
    userAddresses.add(billingAddress);
@@ -54,7 +55,7 @@ public class TestCreateUser {
    Map<String, Object> userDetails = new HashMap<>();
    userDetails.put("firstName", "John");
    userDetails.put("lastName", "Doe");
-   userDetails.put("email", "test@test.com");
+   userDetails.put("email", EMAIL_ADDRESS);
    userDetails.put("password", "123456");
    userDetails.put("addresses", userAddresses);
 
