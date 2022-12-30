@@ -1,10 +1,10 @@
 package com.appsdeveloperblog.app.ws.mobileappwsrestassuredtest;
 
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +21,7 @@ public class UsersWebServiceEndpointTest {
   private final String JSON = "application/json";
   private static String authorizationHeader;
   private static String userId;
+  private static List<Map<String, String>> addresses;
 
   @BeforeEach
   void setUp() throws Exception {
@@ -49,11 +50,11 @@ public class UsersWebServiceEndpointTest {
       .extract()
       .response();
 
-      authorizationHeader = response.header("Authorization");
-      userId = response.header("UserID");
+    authorizationHeader = response.header("Authorization");
+    userId = response.header("UserID");
 
-      assertNotNull(authorizationHeader);
-      assertNotNull(userId);
+    assertNotNull(authorizationHeader);
+    assertNotNull(userId);
   }
 
   /*
@@ -74,20 +75,59 @@ public class UsersWebServiceEndpointTest {
       .extract()
       .response();
 
-      String userPublicId = response.jsonPath().getString("userId");
-      String email = response.jsonPath().getString("email");
-      String firstName = response.jsonPath().getString("firstName");
-      String lastName = response.jsonPath().getString("lastName");
-      List<Map<String, String>> addresses = response.jsonPath().getList("addresses");
-      /* addressId currently null, this is a one to many relationship which can be invoked with /mobile-app-ws/users/{id}/addresses */
-      //String addressId = addresses.get(0).get("addressId");
+    String userPublicId = response.jsonPath().getString("userId");
+    String email = response.jsonPath().getString("email");
+    String firstName = response.jsonPath().getString("firstName");
+    String lastName = response.jsonPath().getString("lastName");
+    addresses = response.jsonPath().getList("addresses");
+    /* addressId currently null, this is a one to many relationship which can be invoked with /mobile-app-ws/users/{id}/addresses */
+    //String addressId = addresses.get(0).get("addressId");
 
-      assertNotNull(userPublicId);
-      assertNotNull(email);
-      assertNotNull(firstName);
-      assertNotNull(lastName);
-      //assertTrue(addresses.size() == 2);
-      //assertEquals(EMAIL_ADDRESS, email);
-      //assertTrue(addressId.length() == 30);
+    assertNotNull(userPublicId);
+    assertNotNull(email);
+    assertNotNull(firstName);
+    assertNotNull(lastName);
+    //assertTrue(addresses.size() == 2);
+    assertEquals(EMAIL_ADDRESS, email);
+    //assertTrue(addressId.length() == 30);
+  }
+
+  /*
+   * Test update user details
+   */
+  @Test
+  void c() {
+    Map<String, Object> userDetails = new HashMap<>();
+    userDetails.put("firstName", "Sean");
+    userDetails.put("lastName", "Mayer");
+
+    Response response = RestAssured
+      .given()
+      .pathParam("id", userId)
+      .body(userDetails)
+      .header("Authorization", authorizationHeader)
+      .accept(JSON)
+      .contentType(JSON)
+      .when()
+      .put(CONTEXT_PATH + "/users/{id}")
+      .then()
+      .statusCode(200)
+      .contentType(JSON)
+      .extract()
+      .response();
+
+    String firstName = response.jsonPath().getString("firstName");
+    String lastName = response.jsonPath().getString("lastName");
+
+    //List<Map<String, String>> storedAddresses = response.jsonPath().getList("addresses");
+
+    assertNotNull(firstName);
+    assertNotNull(lastName);
+    //assertNotNull(addresses);
+    //assertTrue(addresses.size() == 2);
+    assertEquals("Sean", firstName);
+    assertEquals("Mayer", lastName);
+    //assertEquals(addresses.get(0).get("streetName"), storedAddresses.get(0).get("streetName"));
+
   }
 }
